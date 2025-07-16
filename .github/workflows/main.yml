@@ -12,50 +12,53 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      
-      - name: setup .net
+
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
-      - name: restore dependencies
-        run: dotnet respose
+      - name: Restore dependencies
+        run: dotnet restore
         working-directory: ./AutorizacionMiddleware/Autorizacion.Middleware
 
-      - name: build
+      - name: Build
         run: dotnet build --no-restore
         working-directory: ./AutorizacionMiddleware/Autorizacion.Middleware
 
-      - name: pack
-        run: dotnet pack
+      - name: Pack
+        run: dotnet pack -c Release
         working-directory: ./AutorizacionMiddleware/Autorizacion.Middleware
 
-      - uses: actions/upload-artifacts@v3
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
         with:
           name: autorizacion
+          path: ./AutorizacionMiddleware/Autorizacion.Middleware/bin/Release/*.nupkg
           if-no-files-found: error
           retention-days: 7
-          path: /home/runner/work/AutorizacionMiddleware/AutorizacionMiddleware/Autorizacion.Middleware/bin/Release/*.nupkg
 
   release:
     runs-on: ubuntu-latest
     needs: build
+
     steps:
-      - name: checkout
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: download artifacts
-        uses: actions/download-artifacts@v3
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: autorizacion
 
-      - name: list files
+      - name: List files
         run: ls -R
 
-      - name: prep packages
-        run: dotnet nuget add source --username diegoalonsonm --pasword ${{ secrets.SECRET_PAQUETES }} --store-password-in-clear-text --name paquetes "https://nuget.pkg.github.com/diegoalonsonm/index.json"
+      - name: Prep packages
+        run: dotnet nuget add source --username diegoalonsonm --password ${{ secrets.SECRET_PAQUETES }} --store-password-in-clear-text --name paquetes "https://nuget.pkg.github.com/diegoalonsonm/index.json"
 
-      - name: puch package
-        run: dotnet nuget push Autorizacion/*.nupkg --api-key ${{ secrets.SECRET_PAQUETES }} --source "paquetes"
-
+      - name: Push package
+        run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.SECRET_PAQUETES }} --source paquetes
 
 # comando para agregar el source
 # dotnet nuget add source "https://nuget.pkg.github.com/diegoalonsonm/index.json" --name "Paquetes" --username "diegoalonsonm" --password PAT --store-password-in-clear-text
