@@ -20,19 +20,19 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore dependencies
-        run: dotnet restore AutorizacionMiddleware/Autorizacion.Middleware/Autorizacion.Middleware.csproj
+        run: dotnet restore Autorizacion.Middleware/Autorizacion.Middleware.csproj
 
       - name: Build
-        run: dotnet build --no-restore -c Release AutorizacionMiddleware/Autorizacion.Middleware/Autorizacion.Middleware.csproj
+        run: dotnet build --no-restore -c Release Autorizacion.Middleware/Autorizacion.Middleware.csproj
 
       - name: Pack
-        run: dotnet pack -c Release --no-build AutorizacionMiddleware/Autorizacion.Middleware/Autorizacion.Middleware.csproj
+        run: dotnet pack -c Release --no-build Autorizacion.Middleware/Autorizacion.Middleware.csproj
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: autorizacion
-          path: AutorizacionMiddleware/Autorizacion.Middleware/bin/Release/*.nupkg
+          path: Autorizacion.Middleware/bin/Release/*.nupkg
           if-no-files-found: error
           retention-days: 7
 
@@ -57,6 +57,7 @@ jobs:
 
       - name: Push NuGet package
         run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.SECRET_PAQUETES }} --source paquetes
+
 
 # comando para agregar el source
 # dotnet nuget add source "https://nuget.pkg.github.com/diegoalonsonm/index.json" --name "Paquetes" --username "diegoalonsonm" --password PAT --store-password-in-clear-text
