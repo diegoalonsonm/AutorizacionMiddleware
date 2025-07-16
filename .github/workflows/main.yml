@@ -51,7 +51,7 @@ jobs:
         run: ls -R
 
       - name: prep packages
-        run: dotnet nuget add source --username diegoalonsonm --pasword ${{ secrets.SECRET_PAQUETES }} --store-password-in-clear-text --name paquetes
+        run: dotnet nuget add source --username diegoalonsonm --pasword ${{ secrets.SECRET_PAQUETES }} --store-password-in-clear-text --name paquetes "https://nuget.pkg.github.com/diegoalonsonm/index.json"
 
       - name: puch package
         run: dotnet nuget push Autorizacion/*.nupkg --api-key ${{ secrets.SECRET_PAQUETES }} --source "paquetes"
