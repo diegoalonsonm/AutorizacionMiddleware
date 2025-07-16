@@ -1,4 +1,4 @@
-name: Action to build and publish the project package into a GH package registry
+name: Build and publish .NET package to GitHub Packages
 
 on:
   push:
@@ -11,30 +11,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
       - name: Restore dependencies
-        run: dotnet restore
-        working-directory: ./AutorizacionMiddleware/Autorizacion.Middleware
+        run: dotnet restore AutorizacionMiddleware/Autorizacion.Middleware/Autorizacion.Middleware.csproj
 
       - name: Build
-        run: dotnet build --no-restore
-        working-directory: ./AutorizacionMiddleware/Autorizacion.Middleware
+        run: dotnet build --no-restore -c Release AutorizacionMiddleware/Autorizacion.Middleware/Autorizacion.Middleware.csproj
 
       - name: Pack
-        run: dotnet pack -c Release
-        working-directory: ./AutorizacionMiddleware/Autorizacion.Middleware
+        run: dotnet pack -c Release --no-build AutorizacionMiddleware/Autorizacion.Middleware/Autorizacion.Middleware.csproj
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: autorizacion
-          path: ./AutorizacionMiddleware/Autorizacion.Middleware/bin/Release/*.nupkg
+          path: AutorizacionMiddleware/Autorizacion.Middleware/bin/Release/*.nupkg
           if-no-files-found: error
           retention-days: 7
 
@@ -43,7 +41,7 @@ jobs:
     needs: build
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Download artifact
@@ -51,13 +49,13 @@ jobs:
         with:
           name: autorizacion
 
-      - name: List files
+      - name: List downloaded files
         run: ls -R
 
-      - name: Prep packages
-        run: dotnet nuget add source --username diegoalonsonm --password ${{ secrets.SECRET_PAQUETES }} --store-password-in-clear-text --name paquetes "https://nuget.pkg.github.com/diegoalonsonm/index.json"
+      - name: Configure NuGet source
+        run: dotnet nuget add source "https://nuget.pkg.github.com/diegoalonsonm/index.json" --name paquetes --username diegoalonsonm --password ${{ secrets.SECRET_PAQUETES }} --store-password-in-clear-text
 
-      - name: Push package
+      - name: Push NuGet package
         run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.SECRET_PAQUETES }} --source paquetes
 
 # comando para agregar el source
