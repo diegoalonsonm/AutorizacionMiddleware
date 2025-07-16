@@ -17,7 +17,7 @@ namespace Autorizacion.DA
             _conexion = _repositorioDapper.ObtenerRepositorioDapper();
         }
 
-        public async Task<IEnumerable<Perfil>> ISeguridadDA.ObtenerPerfilesPorUsuario(Usuario usuario)
+        public async Task<IEnumerable<Perfil>> ObtenerPerfilesPorUsuario(Usuario usuario)
         {
             string sqlQuery = @"[ObtenerPerfilesPorUsuario]";
             var consulta = await _conexion.QueryAsync<Abstracciones.Entidades.Perfil>(sqlQuery, new
@@ -29,7 +29,7 @@ namespace Autorizacion.DA
             return Convertidor.ConvertirLista<Abstracciones.Entidades.Perfil, Abstracciones.Modelos.Perfil>(consulta);
         }
 
-        public async Task<Usuario> ISeguridadDA.ObtenerUsuario(Usuario usuario)
+        public async Task<Usuario> ObtenerUsuario(Usuario usuario)
         {
             string sqlQuery = @"[ObtenerUsuario]";
             var consulta = await _conexion.QueryAsync<Abstracciones.Entidades.Usuario>(sqlQuery, new
