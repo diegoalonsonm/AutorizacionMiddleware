@@ -56,6 +56,6 @@ jobs:
       - name: puch package
         run: dotnet nuget push Autorizacion/*.nupkg --api-key ${{ secrets.SECRET_PAQUETES }} --source "paquetes"
 
-      
 
-      
+# comando para agregar el source
+# dotnet nuget add source "https://nuget.pkg.github.com/diegoalonsonm/index.json" --name "Paquetes" --username "diegoalonsonm" --password PAT --store-password-in-clear-text
