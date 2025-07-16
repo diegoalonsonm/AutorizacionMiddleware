@@ -50,7 +50,7 @@ jobs:
     if: github.ref == 'refs/heads/master'
 
     steps:
-    - name: download nughet package
+    - name: download nuget package
       uses: actions/download-artifact@v1.0.0
       with: 
         name: nugetPackage
@@ -58,19 +58,24 @@ jobs:
     - name: prep packages
       run: dotnet add source --username username --password ${{ secrets.SECRET_PAQUETES }} --store-password-in-clear-text
 
-    - name: 
+    - name: push package to gh
+      if: needs.build.outputs.CommitsSinceVersionSource > 0
+      run: dotnet nuget push nugetPackage/*.nupkg --api-key ${{ secrets.SECRET_PAQUETES }} --source "github"
 
+    - name: create release
+      if: 1 == 0
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.SECRET_PAQUETES }}
+      with:
+        tag_name: ${{ needs.build.outputs.Version }}
+        release_name: Release ${{ needs.build.outputs.Version }}
 
-
-
-
-
-
-
-
-
-
-
-
-
-      
+    - name: create release
+      if: needs.build.outputs.CommitsSinceVersionSource > 0 
+      uses: ncipollo/release-action@v1
+      with:
+        tag: ${{ needs.build.outputs.Version }}
+        name: release ${{ needs.build.outputs.Version }}
+        artifacts: "nugetPackage/*"
+        token: ${{ secrets.SECRET_PAQUETES }}
