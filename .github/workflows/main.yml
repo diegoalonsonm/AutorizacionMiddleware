@@ -1,0 +1,76 @@
+name: Action to build and publish the project package into a GH package registry
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      Version: ${{ steps.gitversion.outputs.SemVer }}
+      CommitsSinceVersionSource: ${{ steps.gitversion.outputs.CommitsSinceVersionSource }}
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Install git
+      uses: gittools/actions/gitversion/setup@v0.9.7
+      with:
+        versionSpec: 5.x
+
+    - name: Determine version
+      uses: gittools/actions/gitversion/execute@v0.9.7
+      id: gitversion
+      
+    - name: display gitversion outputs
+      run: |
+        echo "Version: ${{ steps.gitversion.outputs.SemVer }}"
+        echo "Commits Since Version Source: ${{ steps.gitversion.outputs.CommitsSinceVersionSource }}"
+
+    - name: setup.net
+      uses: actions/setup-dotnet@1
+      with:
+        dotnet-version: 8.0.x
+
+    - name: build and pack NuGet
+      run: dotnet pack Autorizacion.Middleware/Autorizacion.Middleware.csproj -p:Version='${{ steps.gitversion.outputs.SemVer }}'
+
+    - name: upload nuget package to github
+      uses: action/upload-artifact@v2
+      with:
+        name: nugetPackage
+        path: bin/Release/
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+    - name: download nughet package
+      uses: actions/download-artifact@v1.0.0
+      with: 
+        name: nugetPackage
+
+    - name: prep packages
+      run: dotnet add source --username username --password ${{ secrets.SECRET_PAQUETES }} --store-password-in-clear-text
+
+    - name: 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
