@@ -3,79 +3,59 @@ name: Action to build and publish the project package into a GH package registry
 on:
   push:
     branches: [master]
+  pull_request:
+    branches: [master]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      Version: ${{ steps.gitversion.outputs.SemVer }}
-      CommitsSinceVersionSource: ${{ steps.gitversion.outputs.CommitsSinceVersionSource }}
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-
-    - name: Install git
-      uses: gittools/actions/gitversion/setup@v0.9.7
-      with:
-        versionSpec: 5.x
-
-    - name: Determine version
-      uses: gittools/actions/gitversion/execute@v0.9.7
-      id: gitversion
+      - uses: actions/checkout@v4
       
-    - name: display gitversion outputs
-      run: |
-        echo "Version: ${{ steps.gitversion.outputs.SemVer }}"
-        echo "Commits Since Version Source: ${{ steps.gitversion.outputs.CommitsSinceVersionSource }}"
+      - name: setup .net
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
 
-    - name: setup.net
-      uses: actions/setup-dotnet@1
-      with:
-        dotnet-version: 8.0.x
+      - name: restore dependencies
+        run: dotnet respose
+        working-directory: ./AutorizacionMiddleware/Autorizacion.Middleware
 
-    - name: build and pack NuGet
-      run: dotnet pack Autorizacion.Middleware/Autorizacion.Middleware.csproj -p:Version='${{ steps.gitversion.outputs.SemVer }}'
+      - name: build
+        run: dotnet build --no-restore
+        working-directory: ./AutorizacionMiddleware/Autorizacion.Middleware
 
-    - name: upload nuget package to github
-      uses: action/upload-artifact@v2
-      with:
-        name: nugetPackage
-        path: bin/Release/
+      - name: pack
+        run: dotnet pack
+        working-directory: ./AutorizacionMiddleware/Autorizacion.Middleware
+
+      - uses: actions/upload-artifacts@v3
+        with:
+          name: autorizacion
+          if-no-files-found: error
+          retention-days: 7
+          path: /home/runner/work/AutorizacionMiddleware/AutorizacionMiddleware/Autorizacion.Middleware/bin/Release/*.nupkg
 
   release:
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/master'
-
     steps:
-    - name: download nuget package
-      uses: actions/download-artifact@v1.0.0
-      with: 
-        name: nugetPackage
+      - name: checkout
+        uses: actions/checkout@v3
 
-    - name: prep packages
-      run: dotnet add source --username username --password ${{ secrets.SECRET_PAQUETES }} --store-password-in-clear-text
+      - name: download artifacts
+        uses: actions/download-artifacts@v3
 
-    - name: push package to gh
-      if: needs.build.outputs.CommitsSinceVersionSource > 0
-      run: dotnet nuget push nugetPackage/*.nupkg --api-key ${{ secrets.SECRET_PAQUETES }} --source "github"
+      - name: list files
+        run: ls -R
 
-    - name: create release
-      if: 1 == 0
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.SECRET_PAQUETES }}
-      with:
-        tag_name: ${{ needs.build.outputs.Version }}
-        release_name: Release ${{ needs.build.outputs.Version }}
+      - name: prep packages
+        run: dotnet nuget add source --username diegoalonsonm --pasword ${{ secrets.SECRET_PAQUETES }} --store-password-in-clear-text --name paquetes
 
-    - name: create release
-      if: needs.build.outputs.CommitsSinceVersionSource > 0 
-      uses: ncipollo/release-action@v1
-      with:
-        tag: ${{ needs.build.outputs.Version }}
-        name: release ${{ needs.build.outputs.Version }}
-        artifacts: "nugetPackage/*"
-        token: ${{ secrets.SECRET_PAQUETES }}
+      - name: puch package
+        run: dotnet nuget push Autorizacion/*.nupkg --api-key ${{ secrets.SECRET_PAQUETES }} --source "paquetes"
+
+      
+
+      
