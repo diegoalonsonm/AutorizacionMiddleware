@@ -20,19 +20,19 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore dependencies
-        run: dotnet restore Autorizacion.BW/Autorizacion.BW.csproj
+        run: dotnet restore Abstracciones.BW/Abstracciones.BW.csproj
 
       - name: Build
-        run: dotnet build --no-restore -c Release Autorizacion.BW/Autorizacion.BW.csproj
+        run: dotnet build --no-restore -c Release Abstracciones.BW/Abstracciones.BW.csproj
 
       - name: Pack
-        run: dotnet pack -c Release --no-build Autorizacion.BW/Autorizacion.BW.csproj
+        run: dotnet pack -c Release --no-build Abstracciones.BW/Abstracciones.BW.csproj
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: autorizacion.BW
-          path: Autorizacion.BW/bin/Release/*.nupkg
+          name: Abstracciones.BW
+          path: Abstracciones.BW/bin/Release/*.nupkg
           if-no-files-found: error
           retention-days: 7
 
@@ -47,7 +47,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: autorizacion.BW
+          name: Abstracciones.BW
 
       - name: List downloaded files
         run: ls -R
