@@ -20,13 +20,13 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore dependencies
-        run: dotnet restore Abstracciones.BW/Abstracciones.BW.csproj
+        run: dotnet restore Abstracciones.BW/Autorizacion.BW.csproj
 
       - name: Build
-        run: dotnet build --no-restore -c Release Abstracciones.BW/Abstracciones.BW.csproj
+        run: dotnet build --no-restore -c Release Abstracciones.BW/Autorizacion.BW.csproj
 
       - name: Pack
-        run: dotnet pack -c Release --no-build Abstracciones.BW/Abstracciones.BW.csproj
+        run: dotnet pack -c Release --no-build Abstracciones.BW/Autorizacion.BW.csproj
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
