@@ -90,4 +90,11 @@ namespace Autorizacion.Middleware
             });
         }
     }
+    public static class ClaimsUsuarioMiddlewareExtensions
+    {
+        public static IApplicationBuilder AutorizacionClaims(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<ClaimsPerfiles>();
+        }
+    }
 }
