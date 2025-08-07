@@ -31,8 +31,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Helpers/Helpers.csproj
-          path: Helpers/Helpers/bin/Release/*.nupkg
+          name: Helpers/Helpers
+          path: Helpers/bin/Release/*.nupkg
           if-no-files-found: error
           retention-days: 7
 
@@ -47,7 +47,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: Helpers/Helpers.csproj
+          name: Helpers/Helpers
 
       - name: List downloaded files
         run: ls -R
