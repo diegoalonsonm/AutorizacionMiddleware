@@ -32,13 +32,14 @@ namespace Autorizacion.DA
         public async Task<Usuario> ObtenerUsuario(Usuario usuario)
         {
             string sqlQuery = @"[ObtenerUsuario]";
-            var consulta = await _conexion.QueryAsync<Abstracciones.Entidades.Usuario>(sqlQuery, new
+            var consulta = await _conexion.QueryAsync<Usuario>(sqlQuery, new
             {
                 correo = usuario.Correo,
                 nombre = usuario.Nombre
             });
 
-            return Convertidor.Convertir<Abstracciones.Entidades.Usuario, Abstracciones.Modelos.Usuario>(consulta.FirstOrDefault());
+            //return Convertidor.Convertir<Abstracciones.Entidades.Usuario, Abstracciones.Modelos.Usuario>(consulta.FirstOrDefault());
+            return consulta.FirstOrDefault();
         }
     }
 }
