@@ -1,0 +1,63 @@
+name: Build and publish .NET package to GitHub Packages
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore Helpers/Helpers.csproj
+
+      - name: Build
+        run: dotnet build --no-restore -c Release Helpers/Helpers.csproj
+
+      - name: Pack
+        run: dotnet pack -c Release --no-build Helpers/Helpers.csproj
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Helpers/Helpers.csproj
+          path: Helpers/Helpers/bin/Release/*.nupkg
+          if-no-files-found: error
+          retention-days: 7
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Helpers/Helpers.csproj
+
+      - name: List downloaded files
+        run: ls -R
+
+      - name: Configure NuGet source
+        run: dotnet nuget add source "https://nuget.pkg.github.com/diegoalonsonm/index.json" --name paquetes --username diegoalonsonm --password ${{ secrets.SECRET_PAQUETES }} --store-password-in-clear-text
+
+      - name: Push NuGet package
+        run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.SECRET_PAQUETES }} --source paquetes
+
+
+# comando para agregar el source
+# dotnet nuget add source "https://nuget.pkg.github.com/diegoalonsonm/index.json" --name "Paquetes" --username "diegoalonsonm" --password PAT --store-password-in-clear-text
