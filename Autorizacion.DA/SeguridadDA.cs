@@ -20,13 +20,13 @@ namespace Autorizacion.DA
         public async Task<IEnumerable<Perfil>> ObtenerPerfilesPorUsuario(Usuario usuario)
         {
             string sqlQuery = @"[ObtenerPerfilesPorUsuario]";
-            var consulta = await _conexion.QueryAsync<Abstracciones.Entidades.Perfil>(sqlQuery, new
+            var consulta = await _conexion.QueryAsync<Perfil>(sqlQuery, new
             {
                 correo = usuario.Correo,
                 nombre = usuario.Nombre,
             });
 
-            return Convertidor.ConvertirLista<Abstracciones.Entidades.Perfil, Abstracciones.Modelos.Perfil>(consulta);
+            return consulta;
         }
 
         public async Task<Usuario> ObtenerUsuario(Usuario usuario)
